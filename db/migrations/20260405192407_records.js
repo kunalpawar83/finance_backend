@@ -11,6 +11,7 @@ exports.up = function (knex) {
         table.string("category").notNullable()
         table.date('date').notNullable();
         table.text('notes');
+        table.boolean('isDelete').defaultTo(false);
         table.timestamps(true, true);
     });
 };
