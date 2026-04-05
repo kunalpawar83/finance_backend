@@ -6,6 +6,9 @@ const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const  {setup_db} = require("./db/index.js");
+const globalerrorhandler = require('./controller/errorController.js');
+const appError = require('./utils/appError.js');
+//const { map, updateMessage } = require('./utils/errorjson.js');
 
 const app = express();
 
@@ -20,38 +23,16 @@ if (process.env.NODE_ENV === 'development') {
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// ================= ROUTES =================
-// Health check route (important for testing)
 app.get('/', (req, res) => {
-    res.status(200).json({
-        status: 'success',
-        message: 'API is running 🚀',
-    });
+    res.send('Hello World!');
 });
 
-app.use((req, res, next) => {
-    res.status(404).json({
-        status: 'fail',
-        message: `Can't find ${req.originalUrl} on this server!`,
-    });
+
+app.all(/.*/, (req, res, next) => {
+    next(new appError(1025, `Can't find ${req.originalUrl} on this server!`));
 });
 
-app.use((err, req, res, next) => {
-    console.error('ERROR 💥', err);
-    const statusCode = err.statusCode || 500;
-    // 🔥 DEV vs PROD behavior
-    if (process.env.NODE_ENV === 'development') {
-        return res.status(statusCode).json({
-            status: err.status || 'error',
-            message: err.message,
-            stack: err.stack,
-        });
-    };
-    return res.status(statusCode).json({
-        status: 'error',
-        message: 'Something went wrong!',
-    });
-});
+app.use(globalerrorhandler);
 
 setup_db().then(() => {
     app.listen(PORT, () => {

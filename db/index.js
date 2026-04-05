@@ -1,57 +1,24 @@
-require('dotenv').config();
-
 const knex_lib = require('knex');
 const { Model } = require('objection');
+const config = require('./knex');
 
-
-const db_config = {
-    development: {
-        client: 'pg',
-        connection: {
-            host: process.env.DB_HOST,
-            port: process.env.DB_PORT || 5432,
-            user: process.env.DB_USER,
-            password: process.env.DB_PASSWORD,
-            database: process.env.DB_NAME,
-            charset: 'utf8',
-        },
-        migrations: {
-            directory: './src/migrations',
-        },
-        seeds: {
-            directory: './src/seeds',
-        },
-    },
-
-    production: {
-        client: 'pg',
-        connection: process.env.database_url,
-        migrations: {
-            directory: './src/migrations',
-        },
-        seeds: {
-            directory: './src/seeds',
-        },
-    },
-};
-
-const env = process.env.node_env || 'development';
-const knex_instance = knex_lib(db_config[env]);
+const environment = process.env.NODE_ENV || 'development';
+const knex = knex_lib(config[environment]);
 
 const setup_db = async () => {
     try {
-        Model.knex(knex_instance);
+        Model.knex(knex);
 
-        await knex_instance.raw('SELECT 1');
+        await knex.raw('SELECT 1');
 
-        console.log('✅ Database connection established successfully.');
+        console.log('✅ Database connected');
     } catch (error) {
-        console.error('❌ Database connection failed:', error.message);
+        console.error('❌ DB connection failed:', error.message);
         throw error;
     }
 };
 
 module.exports = {
-    knex: knex_instance,
+    knex,
     setup_db,
 };
