@@ -8,7 +8,10 @@ const morgan = require('morgan');
 const  {setup_db} = require("./db/index.js");
 const globalerrorhandler = require('./controller/errorController.js');
 const appError = require('./utils/appError.js');
-//const { map, updateMessage } = require('./utils/errorjson.js');
+
+// all routes file
+const RoleRoutes = require('./route/RoleRoute.js');
+const UserRoutes = require('./route/UserRoute.js');
 
 const app = express();
 
@@ -16,9 +19,6 @@ const app = express();
 app.use(helmet());
 app.use(cors());
 
-if (process.env.NODE_ENV === 'development') {
-    app.use(morgan('dev'));
-}
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -26,6 +26,9 @@ app.use(express.urlencoded({ extended: true }));
 app.get('/', (req, res) => {
     res.send('Hello World!');
 });
+
+app.use('/roles', RoleRoutes);
+app.use("/users", UserRoutes);
 
 
 app.all(/.*/, (req, res, next) => {
