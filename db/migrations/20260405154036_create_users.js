@@ -14,7 +14,7 @@ exports.up = async function (knex) {
         table.string('password').notNullable();
 
         table
-            .integer('role_id') // ✅ snake_case (important)
+            .integer('role_id')
             .unsigned()
             .references('id')
             .inTable('roles')
